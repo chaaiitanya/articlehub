@@ -1,0 +1,2 @@
+# Ignore Firebase config file with actual keys
+article-platform/frontend/firebase-config.js

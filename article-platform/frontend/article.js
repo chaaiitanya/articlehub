@@ -1,63 +1,44 @@
-// Article detail page JavaScript
-class ArticleStorage {
+// Api service for interacting with the backend
+class ApiService {
     constructor() {
-        this.storageKey = 'articleHub_articles';
-        this.commentsKey = 'articleHub_comments';
+        this.baseUrl = 'http://localhost:4000/api'; // This should be configured via environment variables
     }
 
-    generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    }
-
-    getAllArticles() {
-        return JSON.parse(localStorage.getItem(this.storageKey) || '[]');
-    }
-
-    getArticleById(id) {
-        const articles = this.getAllArticles();
-        return articles.find(article => article.id === id);
-    }
-
-    saveArticle(article) {
-        const articles = this.getAllArticles();
-        const index = articles.findIndex(a => a.id === article.id);
-        if (index !== -1) {
-            articles[index] = { ...articles[index], ...article };
+    async handleResponse(response) {
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Something went wrong');
         }
-        localStorage.setItem(this.storageKey, JSON.stringify(articles));
-        return article;
+        return response.json();
     }
 
-    incrementViews(id) {
-        const article = this.getArticleById(id);
-        if (article) {
-            article.views = (article.views || 0) + 1;
-            this.saveArticle(article);
-        }
+    async getAllArticles() {
+        const response = await fetch(`${this.baseUrl}/articles`);
+        return this.handleResponse(response);
     }
 
-    getComments(articleId) {
-        const allComments = JSON.parse(localStorage.getItem(this.commentsKey) || '[]');
-        return allComments.filter(comment => comment.articleId === articleId);
+    async getArticleById(id) {
+        const response = await fetch(`${this.baseUrl}/articles/${id}`);
+        return this.handleResponse(response);
     }
 
-    addComment(articleId, text, author) {
-        const comments = JSON.parse(localStorage.getItem(this.commentsKey) || '[]');
-        const comment = {
-            id: this.generateId(),
-            articleId,
-            text,
-            author: author || 'Anonymous',
-            date: new Date().toISOString()
-        };
-        comments.unshift(comment);
-        localStorage.setItem(this.commentsKey, JSON.stringify(comments));
-        return comment;
+    async getComments(articleId) {
+        const response = await fetch(`${this.baseUrl}/comments?articleId=${articleId}`);
+        return this.handleResponse(response);
+    }
+
+    async addComment(articleId, text, author) {
+        const response = await fetch(`${this.baseUrl}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ article_id: articleId, content: text, author: author || 'Anonymous' }),
+        });
+        return this.handleResponse(response);
     }
 }
 
-// Initialize storage
-const storage = new ArticleStorage();
+// Initialize API service
+const api = new ApiService();
 
 // Get article ID from URL
 const urlParams = new URLSearchParams(window.location.search);
@@ -77,7 +58,7 @@ function initDarkMode() {
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
     if (isDarkMode) {
         document.documentElement.setAttribute('data-theme', 'dark');
-        darkModeToggle.textContent = '☀️';
+        if(darkModeToggle) darkModeToggle.textContent = '☀️';
     }
 }
 
@@ -95,107 +76,101 @@ darkModeToggle?.addEventListener('click', () => {
 });
 
 // Load article
-function loadArticle() {
+async function loadArticle() {
     if (!articleId) {
         articleContent.innerHTML = '<p>Article not found. <a href="index.html">Go back to home</a></p>';
         return;
     }
 
-    const article = storage.getArticleById(articleId);
-    if (!article) {
-        articleContent.innerHTML = '<p>Article not found. <a href="index.html">Go back to home</a></p>';
-        return;
+    try {
+        const article = await api.getArticleById(articleId);
+
+        // Update page title
+        document.title = `${article.title} - Article Hub`;
+
+        // Format date
+        const date = new Date(article.created_at);
+        const formattedDate = date.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+
+        // Render article
+        articleContent.innerHTML = `
+            <h1>${article.title}</h1>
+            <div class="article-detail-meta">
+                <span>👤 ${article.author}</span>
+                <span>📅 ${formattedDate}</span>
+                <span>📁 ${article.category}</span>
+                <span>👁️ ${article.views || 0} views</span>
+                <span>❤️ ${article.likes || 0} likes</span>
+            </div>
+            ${article.image_url ? `<img src="${article.image_url}" alt="${article.title}" class="article-detail-image">` : ''}
+            <div class="article-content">
+                ${formatContent(article.content)}
+            </div>
+            ${article.tags && article.tags.length > 0 ?
+                `<div class="article-tags">
+                    ${article.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+                </div>` : ''}
+        `;
+
+        // Load comments
+        loadComments();
+
+        // Load related articles
+        loadRelatedArticles(article);
+
+    } catch (error) {
+        console.error('Error loading article:', error);
+        articleContent.innerHTML = '<p class="error-message">Failed to load article. <a href="index.html">Go back to home</a></p>';
     }
-
-    // Increment views
-    storage.incrementViews(articleId);
-
-    // Update page title
-    document.title = `${article.title} - Article Hub`;
-
-    // Format date
-    const date = new Date(article.date);
-    const formattedDate = date.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-    });
-
-    // Render article
-    articleContent.innerHTML = `
-        <h1>${article.title}</h1>
-        <div class="article-detail-meta">
-            <span>👤 ${article.author}</span>
-            <span>📅 ${formattedDate}</span>
-            <span>📁 ${article.category}</span>
-            <span>👁️ ${article.views || 0} views</span>
-            <span>❤️ ${article.likes || 0} likes</span>
-        </div>
-        ${article.image ? `<img src="${article.image}" alt="${article.title}" class="article-detail-image">` : ''}
-        <div class="article-content">
-            ${formatContent(article.content)}
-        </div>
-        ${article.tags && article.tags.length > 0 ?
-            `<div class="article-tags">
-                ${article.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
-            </div>` : ''}
-    `;
-
-    // Load comments
-    loadComments();
-
-    // Load related articles
-    loadRelatedArticles(article);
 }
 
 function formatContent(content) {
-    // Convert line breaks to paragraphs
-    const paragraphs = content.split('\n\n');
-    return paragraphs.map(p => {
-        // Check for headers (lines starting with ##)
-        if (p.startsWith('## ')) {
-            return `<h2>${p.substring(3)}</h2>`;
-        } else if (p.startsWith('### ')) {
-            return `<h3>${p.substring(4)}</h3>`;
-        } else {
-            return `<p>${p}</p>`;
-        }
-    }).join('');
+    // Convert newlines to paragraphs for display
+    return content.split('\n').map(p => `<p>${p}</p>`).join('');
 }
 
 // Load comments
-function loadComments() {
-    const comments = storage.getComments(articleId);
+async function loadComments() {
+    try {
+        const comments = await api.getComments(articleId);
 
-    if (comments.length === 0) {
-        commentsList.innerHTML = '<p class="no-comments">No comments yet. Be the first to share your thoughts!</p>';
-        return;
-    }
+        if (comments.length === 0) {
+            commentsList.innerHTML = '<p class="no-comments">No comments yet. Be the first to share your thoughts!</p>';
+            return;
+        }
 
-    commentsList.innerHTML = comments.map(comment => {
-        const date = new Date(comment.date);
-        const formattedDate = date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        commentsList.innerHTML = comments.map(comment => {
+            const date = new Date(comment.created_at);
+            const formattedDate = date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
 
-        return `
-            <div class="comment">
-                <div class="comment-header">
-                    <span class="comment-author-name">${comment.author}</span>
-                    <span class="comment-date">${formattedDate}</span>
+            return `
+                <div class="comment">
+                    <div class="comment-header">
+                        <span class="comment-author-name">${comment.author}</span>
+                        <span class="comment-date">${formattedDate}</span>
+                    </div>
+                    <p class="comment-text">${comment.content}</p>
                 </div>
-                <p class="comment-text">${comment.text}</p>
-            </div>
-        `;
-    }).join('');
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading comments:', error);
+        commentsList.innerHTML = '<p class="error-message">Failed to load comments.</p>';
+    }
 }
 
 // Submit comment
-submitComment?.addEventListener('click', () => {
+submitComment?.addEventListener('click', async () => {
     const text = commentText.value.trim();
     const author = commentAuthor.value.trim();
 
@@ -204,70 +179,81 @@ submitComment?.addEventListener('click', () => {
         return;
     }
 
-    storage.addComment(articleId, text, author);
+    try {
+        await api.addComment(articleId, text, author);
 
-    // Clear form
-    commentText.value = '';
-    commentAuthor.value = '';
+        // Clear form
+        commentText.value = '';
+        commentAuthor.value = '';
 
-    // Reload comments
-    loadComments();
+        // Reload comments
+        loadComments();
 
-    // Show success message
-    const successMsg = document.createElement('div');
-    successMsg.className = 'success-message';
-    successMsg.textContent = 'Comment posted successfully!';
-    submitComment.parentElement.appendChild(successMsg);
-    setTimeout(() => successMsg.remove(), 3000);
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.className = 'success-message';
+        successMsg.textContent = 'Comment posted successfully!';
+        submitComment.parentElement.appendChild(successMsg);
+        setTimeout(() => successMsg.remove(), 3000);
+
+    } catch (error) {
+        console.error('Error posting comment:', error);
+        alert('Failed to post comment. Please try again.');
+    }
 });
 
 // Load related articles
-function loadRelatedArticles(currentArticle) {
-    const allArticles = storage.getAllArticles()
-        .filter(a => a.status === 'published' && a.id !== currentArticle.id);
+async function loadRelatedArticles(currentArticle) {
+    try {
+        const allArticles = await api.getAllArticles();
+        const articles = allArticles.filter(a => a.id !== currentArticle.id);
 
-    // Find related articles (same category or matching tags)
-    let related = allArticles.filter(article =>
-        article.category === currentArticle.category ||
-        (article.tags && currentArticle.tags &&
-            article.tags.some(tag => currentArticle.tags.includes(tag)))
-    );
+        // Find related articles (same category or matching tags)
+        let related = articles.filter(article =>
+            article.category === currentArticle.category ||
+            (article.tags && currentArticle.tags &&
+                article.tags.some(tag => currentArticle.tags.includes(tag)))
+        );
 
-    // If not enough related, add random articles
-    if (related.length < 3) {
-        const remaining = allArticles.filter(a => !related.includes(a));
-        related = [...related, ...remaining.slice(0, 3 - related.length)];
-    }
+        // If not enough related, add random articles
+        if (related.length < 3) {
+            const remaining = articles.filter(a => !related.includes(a));
+            related = [...related, ...remaining.slice(0, 3 - related.length)];
+        }
 
-    // Limit to 3 articles
-    related = related.slice(0, 3);
+        // Limit to 3 articles
+        related = related.slice(0, 3);
 
-    if (related.length === 0) {
-        relatedArticles.innerHTML = '<p>No related articles found.</p>';
-        return;
-    }
+        if (related.length === 0) {
+            if (relatedArticles) relatedArticles.innerHTML = '<p>No related articles found.</p>';
+            return;
+        }
 
-    relatedArticles.innerHTML = related.map(article => {
-        const date = new Date(article.date);
-        const formattedDate = date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-        });
+        if(relatedArticles) relatedArticles.innerHTML = related.map(article => {
+            const date = new Date(article.created_at);
+            const formattedDate = date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
+            });
 
-        return `
-            <div class="article-card" onclick="window.location.href='article.html?id=${article.id}'">
-                ${article.image ? `<img src="${article.image}" alt="${article.title}" class="article-image">` :
-                '<div class="article-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>'}
-                <div class="article-body">
-                    <span class="article-category">${article.category}</span>
-                    <h3 class="article-title">${article.title}</h3>
-                    <div class="article-meta">
-                        <span>${article.author} • ${formattedDate}</span>
+            return `
+                <div class="article-card" onclick="window.location.href='article.html?id=${article.id}'">
+                    ${article.image_url ? `<img src="${article.image_url}" alt="${article.title}" class="article-image">` :
+                    '<div class="article-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>'}
+                    <div class="article-body">
+                        <span class="article-category">${article.category}</span>
+                        <h3 class="article-title">${article.title}</h3>
+                        <div class="article-meta">
+                            <span>${article.author} • ${formattedDate}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
-    }).join('');
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error('Error loading related articles:', error);
+    }
 }
 
 // Add styles for tags and success message

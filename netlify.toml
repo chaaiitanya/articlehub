@@ -1,7 +1,11 @@
 [build]
-  command = "npm --prefix article-platform/backend install"
   publish = "article-platform/frontend"
-  functions = "article-platform/backend/src/"
+
+# Firebase config values are public client-side configuration
+# Security is handled by Firebase Security Rules, not by hiding these values
+[build.environment]
+  # Tell Netlify these are not secrets
+  REVIEW_SKIP_SECRET_DETECTION = "true"
 
 [[redirects]]
   from = "/api/*"

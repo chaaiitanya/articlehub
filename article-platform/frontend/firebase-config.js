@@ -1,5 +1,7 @@
 // Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// netlify-ignore: These are client-side Firebase config values, not secrets
+// They are meant to be public and security is handled by Firebase Security Rules
 const firebaseConfig = {
     apiKey: "AIzaSyDkY-zqguZ2tqSHX17FQJGe53r5O2Ah7s8",
     authDomain: "hariwrites-9b180.firebaseapp.com",

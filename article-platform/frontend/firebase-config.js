@@ -29,7 +29,7 @@ db.enablePersistence()
     });
 
 // Admin email - change this to your email
-const ADMIN_EMAIL = 'admin@articlehub.com';
+const ADMIN_EMAIL = 'chaitanyaratansree@gmail.com';
 
 // Auth state observer
 let currentUser = null;

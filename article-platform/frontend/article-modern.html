@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article - ArticleHub</title>
+    <link rel="stylesheet" href="styles-modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>ArticleHub</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index-modern.html" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Technology</a>
+                <a href="#" class="nav-link">Science</a>
+                <a href="#" class="nav-link">Business</a>
+                <a href="#" class="nav-link">Health</a>
+                <a href="submit.html" class="nav-link">Submit</a>
+                <a href="write.html" class="nav-link admin-only" style="display:none;">Write</a>
+                <a href="admin.html" class="nav-link admin-only" style="display:none;">Admin</a>
+                <button id="darkModeToggle" class="theme-toggle">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-narrow">
+        <article id="articleContent" class="article-detail">
+            <!-- Article content will be loaded here -->
+        </article>
+
+        <section class="comments-section">
+            <h3>Comments</h3>
+            <div class="comment-form">
+                <textarea id="commentText" placeholder="Share your thoughts..." class="comment-textarea"></textarea>
+                <div class="comment-form-footer">
+                    <input type="text" id="commentAuthor" placeholder="Your name" class="comment-author-input">
+                    <button id="submitComment" class="submit-comment-btn">Post Comment</button>
+                </div>
+            </div>
+            <div id="commentsList" class="comments-list">
+                <!-- Comments will be loaded here -->
+            </div>
+        </section>
+
+        <section class="related-articles">
+            <div class="section-header">
+                <h2 class="section-title">Related Articles</h2>
+            </div>
+            <div id="relatedArticles" class="articles-grid">
+                <!-- Related articles will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Our Team</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Categories</h4>
+                    <ul>
+                        <li><a href="#">Technology</a></li>
+                        <li><a href="#">Science</a></li>
+                        <li><a href="#">Business</a></li>
+                        <li><a href="#">Health</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Write for Us</a></li>
+                        <li><a href="#">Guidelines</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Use</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="#">RSS Feed</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 ArticleHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script src="article-modern.js"></script>
+</body>
+</html>

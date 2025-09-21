@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Write Article - Article Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Article Hub</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="write.html" class="nav-link admin-only active" style="display:none;">Write</a>
+                <a href="admin.html" class="nav-link admin-only" style="display:none;">Admin</a>
+                <button id="darkModeToggle" class="theme-toggle">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container write-container">
+        <div class="write-header">
+            <h2>Create New Article</h2>
+            <button id="saveDraft" class="save-draft-btn">Save Draft</button>
+        </div>
+
+        <form id="articleForm" class="article-form">
+            <div class="form-group">
+                <input type="text" id="articleTitle" placeholder="Article Title" class="form-input title-input" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <input type="text" id="articleAuthor" placeholder="Author Name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <select id="articleCategory" class="form-select" required>
+                        <option value="">Select Category</option>
+                        <option value="technology">Technology</option>
+                        <option value="science">Science</option>
+                        <option value="business">Business</option>
+                        <option value="health">Health</option>
+                        <option value="lifestyle">Lifestyle</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="articleTags" placeholder="Tags (comma separated)" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <input type="url" id="articleImage" placeholder="Cover Image URL (optional)" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <textarea id="articleSummary" placeholder="Brief summary (150 characters)" class="form-textarea summary-textarea" maxlength="150" required></textarea>
+                <span class="char-count">0/150</span>
+            </div>
+
+            <div class="form-group">
+                <div class="editor-toolbar">
+                    <button type="button" class="toolbar-btn" data-format="bold">B</button>
+                    <button type="button" class="toolbar-btn" data-format="italic">I</button>
+                    <button type="button" class="toolbar-btn" data-format="underline">U</button>
+                    <button type="button" class="toolbar-btn" data-format="h2">H2</button>
+                    <button type="button" class="toolbar-btn" data-format="h3">H3</button>
+                    <button type="button" class="toolbar-btn" data-format="ul">• List</button>
+                    <button type="button" class="toolbar-btn" data-format="ol">1. List</button>
+                    <button type="button" class="toolbar-btn" data-format="quote">Quote</button>
+                    <button type="button" class="toolbar-btn" data-format="code">Code</button>
+                    <button type="button" class="toolbar-btn" data-format="link">Link</button>
+                </div>
+                <textarea id="articleContent" placeholder="Write your article content here..." class="form-textarea content-textarea" required></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" id="previewBtn" class="btn-secondary">Preview</button>
+                <button type="submit" class="btn-primary">Publish Article</button>
+            </div>
+        </form>
+
+        <div id="previewModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Article Preview</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div id="previewContent" class="modal-body">
+                    <!-- Preview content will be shown here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Article Hub. All rights reserved.</p>
+            <p>Made with ❤️ for content creators</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script src="write-firebase.js"></script>
+</body>
+</html>

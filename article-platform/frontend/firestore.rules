@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'admin@articlehub.com';
+    }
+
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Articles collection
+    match /articles/{articleId} {
+      // Anyone can read published articles
+      allow read: if resource.data.status == 'published' || isAdmin();
+
+      // Only admin can create articles
+      allow create: if isAdmin();
+
+      // Only admin can update articles
+      allow update: if isAdmin();
+
+      // Only admin can delete articles
+      allow delete: if isAdmin();
+    }
+
+    // Comments collection
+    match /comments/{commentId} {
+      // Anyone can read comments
+      allow read: if true;
+
+      // Anyone can create comments (even anonymous users)
+      allow create: if true;
+
+      // Users can update their own comments (if authenticated)
+      allow update: if isAuthenticated() &&
+        resource.data.userEmail == request.auth.token.email;
+
+      // Only admin can delete comments
+      allow delete: if isAdmin();
+    }
+
+    // User profiles (future expansion)
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if isAuthenticated() &&
+        request.auth.uid == userId;
+
+      // Users can update their own profile
+      allow write: if isAuthenticated() &&
+        request.auth.uid == userId;
+    }
+  }
+}

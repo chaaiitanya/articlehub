@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Article Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Article Hub</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="write.html" class="nav-link admin-only" style="display:none;">Write</a>
+                <a href="admin.html" class="nav-link admin-only active" style="display:none;">Admin</a>
+                <button id="darkModeToggle" class="theme-toggle">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container admin-container">
+        <div class="admin-header">
+            <h2>Admin Dashboard</h2>
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <h3 id="totalArticles">0</h3>
+                    <p>Total Articles</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalComments">0</h3>
+                    <p>Total Comments</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalViews">0</h3>
+                    <p>Total Views</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="draftCount">0</h3>
+                    <p>Drafts</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-actions">
+            <button id="exportData" class="admin-btn">Export Data</button>
+            <button id="importData" class="admin-btn">Import Data</button>
+            <button id="clearData" class="admin-btn danger">Clear All Data</button>
+        </div>
+
+        <div class="admin-content">
+            <div class="admin-section">
+                <h3>Manage Articles</h3>
+                <div class="admin-filters">
+                    <input type="text" id="adminSearch" placeholder="Search articles..." class="admin-search">
+                    <select id="adminFilter" class="admin-filter">
+                        <option value="all">All Articles</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Drafts</option>
+                    </select>
+                </div>
+                <div class="articles-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Views</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="articlesTableBody">
+                            <!-- Articles will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3>Recent Comments</h3>
+                <div id="recentComments" class="recent-comments">
+                    <!-- Recent comments will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <input type="file" id="importFile" accept=".json" style="display: none;">
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Article Hub. All rights reserved.</p>
+            <p>Made with ❤️ for content creators</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script src="admin-firebase.js"></script>
+</body>
+</html>

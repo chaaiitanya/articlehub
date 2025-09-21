@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Article Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            max-width: 400px;
+            margin: 4rem auto;
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background-color: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: var(--text-secondary);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .auth-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .auth-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .auth-divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .auth-divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background-color: var(--border-color);
+        }
+
+        .auth-divider::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background-color: var(--border-color);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .auth-switch a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background-color: #fee;
+            color: var(--danger-color);
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .success-message {
+            background-color: #efe;
+            color: var(--success-color);
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .admin-notice {
+            background-color: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .admin-notice strong {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Article Hub</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <button id="darkModeToggle" class="theme-toggle">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2 id="authTitle">Login</h2>
+                <p id="authSubtitle">Welcome back! Please login to your account.</p>
+            </div>
+
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <div id="successMessage" class="success-message" style="display: none;"></div>
+
+            <form id="authForm" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="auth-input" required placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="auth-input" required placeholder="Enter your password" minlength="6">
+                </div>
+
+                <button type="submit" id="authButton" class="auth-button">Login</button>
+            </form>
+
+            <div class="auth-divider">OR</div>
+
+            <button id="googleAuth" class="auth-button" style="background-color: #4285f4;">
+                Sign in with Google
+            </button>
+
+            <div class="auth-switch">
+                <span id="switchText">Don't have an account?</span>
+                <a href="#" id="switchLink">Sign up</a>
+            </div>
+
+            <div class="admin-notice">
+                <strong>Admin Access:</strong> Only the designated admin email can create and manage articles. Regular users can read articles and post comments.
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        // DOM elements
+        const authForm = document.getElementById('authForm');
+        const authTitle = document.getElementById('authTitle');
+        const authSubtitle = document.getElementById('authSubtitle');
+        const authButton = document.getElementById('authButton');
+        const switchText = document.getElementById('switchText');
+        const switchLink = document.getElementById('switchLink');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const googleAuthBtn = document.getElementById('googleAuth');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+
+        let isLoginMode = true;
+
+        // Dark mode
+        function initDarkMode() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                darkModeToggle.textContent = '☀️';
+            }
+        }
+
+        darkModeToggle?.addEventListener('click', () => {
+            const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDarkMode) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('darkMode', 'false');
+                darkModeToggle.textContent = '🌙';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('darkMode', 'true');
+                darkModeToggle.textContent = '☀️';
+            }
+        });
+
+        // Toggle between login and signup
+        switchLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+
+            if (isLoginMode) {
+                authTitle.textContent = 'Login';
+                authSubtitle.textContent = 'Welcome back! Please login to your account.';
+                authButton.textContent = 'Login';
+                switchText.textContent = "Don't have an account?";
+                switchLink.textContent = 'Sign up';
+            } else {
+                authTitle.textContent = 'Sign Up';
+                authSubtitle.textContent = 'Create your account to get started.';
+                authButton.textContent = 'Sign Up';
+                switchText.textContent = 'Already have an account?';
+                switchLink.textContent = 'Login';
+            }
+
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        });
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        // Handle form submission
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            authButton.disabled = true;
+            authButton.textContent = isLoginMode ? 'Logging in...' : 'Signing up...';
+
+            try {
+                let userCredential;
+                if (isLoginMode) {
+                    // Login
+                    userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    showSuccess('Login successful! Redirecting...');
+                } else {
+                    // Signup
+                    userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    showSuccess('Account created successfully! Redirecting...');
+                }
+
+                // Check if admin
+                if (email === ADMIN_EMAIL) {
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1500);
+                } else {
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
+
+                // Handle specific error codes
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        showError('Email is already registered. Please login.');
+                        break;
+                    case 'auth/invalid-email':
+                        showError('Invalid email address.');
+                        break;
+                    case 'auth/weak-password':
+                        showError('Password should be at least 6 characters.');
+                        break;
+                    case 'auth/user-not-found':
+                        showError('No account found with this email.');
+                        break;
+                    case 'auth/wrong-password':
+                        showError('Incorrect password.');
+                        break;
+                    default:
+                        showError(error.message || 'An error occurred. Please try again.');
+                }
+
+                authButton.disabled = false;
+                authButton.textContent = isLoginMode ? 'Login' : 'Sign Up';
+            }
+        });
+
+        // Google authentication
+        googleAuthBtn.addEventListener('click', async () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+
+            try {
+                const result = await auth.signInWithPopup(provider);
+                showSuccess('Login successful! Redirecting...');
+
+                // Check if admin
+                if (result.user.email === ADMIN_EMAIL) {
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1500);
+                } else {
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                }
+            } catch (error) {
+                console.error('Google auth error:', error);
+                showError(error.message || 'Google authentication failed.');
+            }
+        });
+
+        // Check if already logged in
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Already logged in, redirect
+                if (user.email === ADMIN_EMAIL) {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initDarkMode();
+        });
+    </script>
+</body>
+</html>

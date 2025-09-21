@@ -1,0 +1,9 @@
+[build]
+  command = "npm --prefix article-platform/backend install"
+  publish = "article-platform/frontend"
+  functions = "article-platform/backend/src/"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200

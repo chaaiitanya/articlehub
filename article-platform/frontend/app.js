@@ -1,7 +1,7 @@
 // Api service for interacting with the backend
 class ApiService {
     constructor() {
-        this.baseUrl = 'http://localhost:4000/api'; // This should be configured via environment variables
+        this.baseUrl = '/api'; // This should be configured via environment variables
     }
 
     async handleResponse(response) {

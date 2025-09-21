@@ -100,13 +100,13 @@ function displayFeaturedArticle(article) {
     });
 
     featuredArticle.innerHTML = `
-        ${article.image ? `<img src="${article.image}" alt="${article.title}" class="featured-image" onerror="this.onerror=null; this.style.display='none';">` : ''}
+        ${article.image ? `<img src="${article.image}" alt="${article.title || ''}" class="featured-image" onerror="this.onerror=null; this.style.display='none';">` : ''}
         <div class="featured-content">
             <span class="featured-category">${article.category || 'General'}</span>
-            <h2 class="featured-title">${article.title}</h2>
-            <p class="featured-summary">${article.summary}</p>
+            <h2 class="featured-title">${article.title || 'Untitled'}</h2>
+            <p class="featured-summary">${article.summary || ''}</p>
             <div class="featured-meta">
-                <span>By ${article.author}</span>
+                <span>By ${article.author || 'Anonymous'}</span>
                 <span>${formattedDate}</span>
                 <span>${article.views || 0} views</span>
             </div>
@@ -127,9 +127,9 @@ function applyFilters() {
     const searchTerm = searchInput?.value.toLowerCase() || '';
     if (searchTerm) {
         articles = articles.filter(article =>
-            article.title.toLowerCase().includes(searchTerm) ||
-            article.summary.toLowerCase().includes(searchTerm) ||
-            article.content.toLowerCase().includes(searchTerm) ||
+            (article.title && article.title.toLowerCase().includes(searchTerm)) ||
+            (article.summary && article.summary.toLowerCase().includes(searchTerm)) ||
+            (article.content && article.content.toLowerCase().includes(searchTerm)) ||
             (article.tags && article.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
         );
     }
@@ -219,15 +219,15 @@ function createArticleCard(article) {
 
     card.innerHTML = `
         ${article.image ?
-            `<img src="${article.image}" alt="${article.title}" class="article-image" onerror="this.onerror=null; this.style.display='none';">` :
+            `<img src="${article.image}" alt="${article.title || ''}" class="article-image" onerror="this.onerror=null; this.style.display='none';">` :
             '<div class="article-image" style="background: linear-gradient(135deg, #e5e7eb, #9ca3af);"></div>'}
         <div class="article-body">
             <span class="article-category">${article.category || 'General'}</span>
-            <h3 class="article-title">${article.title}</h3>
-            <p class="article-summary">${article.summary}</p>
+            <h3 class="article-title">${article.title || 'Untitled'}</h3>
+            <p class="article-summary">${article.summary || ''}</p>
             <div class="article-meta">
                 <div class="article-author">
-                    <span>${article.author}</span>
+                    <span>${article.author || 'Anonymous'}</span>
                     <span>• ${formattedDate}</span>
                 </div>
                 <div class="article-stats">
@@ -257,14 +257,14 @@ function createArticleListItem(article) {
 
     item.innerHTML = `
         ${article.image ?
-            `<img src="${article.image}" alt="${article.title}" class="article-list-image" onerror="this.onerror=null; this.style.display='none';">` :
+            `<img src="${article.image}" alt="${article.title || ''}" class="article-list-image" onerror="this.onerror=null; this.style.display='none';">` :
             '<div class="article-list-image" style="background: linear-gradient(135deg, #e5e7eb, #9ca3af);"></div>'}
         <div class="article-list-content">
             <span class="article-category">${article.category || 'General'}</span>
-            <h3 class="article-title">${article.title}</h3>
-            <p class="article-summary">${article.summary}</p>
+            <h3 class="article-title">${article.title || 'Untitled'}</h3>
+            <p class="article-summary">${article.summary || ''}</p>
             <div class="article-meta">
-                <span>${article.author} • ${formattedDate}</span>
+                <span>${article.author || 'Anonymous'} • ${formattedDate}</span>
                 <span>👁 ${article.views || 0} views</span>
             </div>
         </div>
@@ -315,7 +315,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
     const categories = ['technology', 'science', 'business', 'health'];
     const linkText = link.textContent.toLowerCase();
 
-    if (categories.includes(linkText)) {
+    if (categories.includes(linkText) && categoryFilter) {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             categoryFilter.value = linkText;
@@ -335,5 +335,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Wait for Firebase auth to initialize
     setTimeout(() => {
         loadArticles();
+
+        // Check if user is admin
+        firebase.auth().onAuthStateChanged(user => {
+            const adminElements = document.querySelectorAll('.admin-only');
+            if (user && user.email === ADMIN_EMAIL) {
+                adminElements.forEach(el => el.style.display = '');
+            } else {
+                adminElements.forEach(el => el.style.display = 'none');
+            }
+        });
     }, 1000);
 });

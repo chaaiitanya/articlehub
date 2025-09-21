@@ -58,8 +58,7 @@ async function loadArticle() {
         currentArticle = article;
         displayArticle(article);
 
-        // Update view count
-        await firebaseStorage.incrementArticleViews(articleId);
+        // View count is already incremented in getArticle method
 
         // Load comments
         loadComments(articleId);
@@ -82,7 +81,7 @@ function displayArticle(article) {
     });
 
     // Format content with proper paragraphs
-    const formattedContent = article.content
+    const formattedContent = (article.content || '')
         .split('\n\n')
         .map(para => para.trim())
         .filter(para => para.length > 0)

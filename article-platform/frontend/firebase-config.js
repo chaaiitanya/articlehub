@@ -168,6 +168,22 @@ class FirebaseArticleStorage {
         }
     }
 
+    // Alias for getArticleById
+    async getArticle(id) {
+        return this.getArticleById(id);
+    }
+
+    // Increment article views
+    async incrementArticleViews(id) {
+        try {
+            await db.collection('articles').doc(id).update({
+                views: firebase.firestore.FieldValue.increment(1)
+            });
+        } catch (error) {
+            console.error('Error incrementing views:', error);
+        }
+    }
+
     async saveArticle(article) {
         try {
             // Only admins can save articles
@@ -231,15 +247,29 @@ class FirebaseArticleStorage {
         }
     }
 
-    async addComment(articleId, text, author) {
+    async addComment(articleId, commentData) {
         try {
-            const comment = {
-                articleId,
-                text,
-                author: author || 'Anonymous',
-                date: firebase.firestore.Timestamp.now(),
-                userEmail: currentUser ? currentUser.email : null
-            };
+            // Handle both old signature (text, author) and new signature (commentData object)
+            let comment;
+            if (typeof commentData === 'string') {
+                // Old signature: addComment(articleId, text, author)
+                const text = commentData;
+                const author = arguments[2] || 'Anonymous';
+                comment = {
+                    articleId,
+                    text,
+                    author,
+                    date: firebase.firestore.Timestamp.now(),
+                    userEmail: currentUser ? currentUser.email : null
+                };
+            } else {
+                // New signature: addComment(articleId, {text, author, date})
+                comment = {
+                    articleId,
+                    ...commentData,
+                    userEmail: currentUser ? currentUser.email : null
+                };
+            }
 
             const docRef = await db.collection('comments').add(comment);
             return { id: docRef.id, ...comment };

@@ -568,6 +568,16 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
+/* Related Articles Section */
+.related-articles {
+    margin-top: 3rem;
+    padding-top: 2rem;
+}
+
+.related-articles .articles-grid {
+    margin-top: 1.5rem;
+}
+
 .comments-section h3 {
     font-size: 1.5rem;
     font-weight: 700;
@@ -754,6 +764,29 @@ body {
 
 .text-center {
     text-align: center;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.error-message {
+    color: #dc2626;
+    text-align: center;
+    padding: 2rem;
+    font-weight: 500;
+}
+
+.no-articles {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.1rem;
+}
+
+/* Admin-only elements */
+.admin-only {
+    display: none;
 }
 
 .mt-1 { margin-top: 0.5rem; }

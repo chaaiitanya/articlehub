@@ -3,19 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Article Hub - Modern Publishing Platform</title>
+    <title>Article Hub - Latest News & Stories</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1>Article Hub</h1>
+                <h1>ArticleHub</h1>
             </div>
             <div class="nav-menu">
                 <a href="index.html" class="nav-link active">Home</a>
-                <a href="submit.html" class="nav-link">Submit Article</a>
+                <a href="#" class="nav-link">Technology</a>
+                <a href="#" class="nav-link">Science</a>
+                <a href="#" class="nav-link">Business</a>
+                <a href="#" class="nav-link">Health</a>
+                <a href="submit.html" class="nav-link">Submit</a>
                 <a href="write.html" class="nav-link admin-only" style="display:none;">Write</a>
                 <a href="admin.html" class="nav-link admin-only" style="display:none;">Admin</a>
                 <button id="darkModeToggle" class="theme-toggle">🌙</button>
@@ -23,37 +28,56 @@
         </div>
     </nav>
 
-    <header class="hero">
-        <div class="container">
-            <h2 class="hero-title">Discover Amazing Articles</h2>
-            <p class="hero-subtitle">Read, write, and share your thoughts with the world</p>
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Search articles..." class="search-input">
-                <button id="searchBtn" class="search-btn">Search</button>
+    <main class="container main-content">
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search articles..." class="search-input">
+            <button id="searchBtn" class="search-btn">Search</button>
+        </div>
+
+        <!-- Featured Article -->
+        <section class="featured-section" id="featuredSection">
+            <div class="section-header">
+                <h2 class="section-title">Featured Story</h2>
+            </div>
+            <div class="featured-article" id="featuredArticle">
+                <!-- Featured article will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <select id="categoryFilter" class="filter-select">
+                    <option value="all">All Categories</option>
+                    <option value="technology">Technology</option>
+                    <option value="science">Science</option>
+                    <option value="business">Business</option>
+                    <option value="health">Health</option>
+                    <option value="lifestyle">Lifestyle</option>
+                </select>
+                <select id="sortFilter" class="filter-select">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="popular">Most Popular</option>
+                </select>
+            </div>
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="grid">📱</button>
+                <button class="view-btn" data-view="list">📋</button>
             </div>
         </div>
-    </header>
 
-    <main class="container main-content">
-        <div class="filter-bar">
-            <select id="categoryFilter" class="filter-select">
-                <option value="all">All Categories</option>
-                <option value="technology">Technology</option>
-                <option value="science">Science</option>
-                <option value="business">Business</option>
-                <option value="health">Health</option>
-                <option value="lifestyle">Lifestyle</option>
-            </select>
-            <select id="sortFilter" class="filter-select">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="popular">Most Popular</option>
-            </select>
-        </div>
-
-        <div id="articlesGrid" class="articles-grid">
-            <!-- Articles will be dynamically loaded here -->
-        </div>
+        <!-- Latest Articles -->
+        <section class="articles-section">
+            <div class="section-header">
+                <h2 class="section-title">Latest Articles</h2>
+                <span id="articleCount" class="text-muted"></span>
+            </div>
+            <div id="articlesGrid" class="articles-grid">
+                <!-- Articles will be dynamically loaded here -->
+            </div>
+        </section>
 
         <div id="loadingSpinner" class="loading-spinner hidden">
             <div class="spinner"></div>
@@ -64,8 +88,47 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Article Hub. All rights reserved.</p>
-            <p>Made with ❤️ for content creators</p>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Our Team</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Categories</h4>
+                    <ul>
+                        <li><a href="#">Technology</a></li>
+                        <li><a href="#">Science</a></li>
+                        <li><a href="#">Business</a></li>
+                        <li><a href="#">Health</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Write for Us</a></li>
+                        <li><a href="#">Guidelines</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Use</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="#">RSS Feed</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 ArticleHub. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 

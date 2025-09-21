@@ -1,8 +1,4 @@
-// Article detail page with Firebase integration
-
-// Get article ID from URL
-const urlParams = new URLSearchParams(window.location.search);
-const articleId = urlParams.get('id');
+// Modern Article Page JavaScript
 
 // DOM elements
 const articleContent = document.getElementById('articleContent');
@@ -13,7 +9,7 @@ const commentsList = document.getElementById('commentsList');
 const relatedArticles = document.getElementById('relatedArticles');
 const darkModeToggle = document.getElementById('darkModeToggle');
 
-// Current article
+// State
 let currentArticle = null;
 
 // Dark mode
@@ -38,307 +34,258 @@ darkModeToggle?.addEventListener('click', () => {
     }
 });
 
-// Load article from Firebase
+// Get article ID from URL
+function getArticleId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id');
+}
+
+// Load article
 async function loadArticle() {
+    const articleId = getArticleId();
     if (!articleId) {
-        articleContent.innerHTML = '<p>Article not found. <a href="index.html">Go back to home</a></p>';
+        articleContent.innerHTML = '<p class="error-message">Article not found.</p>';
         return;
     }
 
     try {
-        const article = await firebaseStorage.getArticleById(articleId);
+        const article = await firebaseStorage.getArticle(articleId);
         if (!article) {
-            articleContent.innerHTML = '<p>Article not found. <a href="index.html">Go back to home</a></p>';
+            articleContent.innerHTML = '<p class="error-message">Article not found.</p>';
             return;
         }
 
         currentArticle = article;
+        displayArticle(article);
 
-        // Update page title
-        document.title = `${article.title} - Article Hub`;
-
-        // Format date
-        const date = article.date?.toDate ? article.date.toDate() : new Date(article.date);
-        const formattedDate = date.toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-        });
-
-        // Render article
-        articleContent.innerHTML = `
-            <h1>${article.title}</h1>
-            <div class="article-detail-meta">
-                <span>👤 ${article.author}</span>
-                <span>📅 ${formattedDate}</span>
-                <span>📁 ${article.category || 'uncategorized'}</span>
-                <span>👁️ ${article.views || 0} views</span>
-                <span>❤️ ${article.likes || 0} likes</span>
-            </div>
-            ${article.image ? `<img src="${article.image}" alt="${article.title}" class="article-detail-image" onerror="this.onerror=null; this.style.display='none';">` : ''}
-            <div class="article-content">
-                ${formatContent(article.content)}
-            </div>
-            ${article.tags && article.tags.length > 0 ?
-                `<div class="article-tags">
-                    ${article.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
-                </div>` : ''}
-        `;
+        // Update view count
+        await firebaseStorage.incrementArticleViews(articleId);
 
         // Load comments
-        await loadComments();
+        loadComments(articleId);
 
         // Load related articles
-        await loadRelatedArticles();
+        loadRelatedArticles(article.category);
     } catch (error) {
         console.error('Error loading article:', error);
-        articleContent.innerHTML = '<p>Error loading article. Please try again later.</p>';
+        articleContent.innerHTML = '<p class="error-message">Failed to load article.</p>';
     }
 }
 
-// Format article content
-function formatContent(content) {
-    if (!content) return '';
+// Display article
+function displayArticle(article) {
+    const date = article.date?.toDate ? article.date.toDate() : new Date(article.date);
+    const formattedDate = date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
 
-    // Convert line breaks to paragraphs
-    const paragraphs = content.split('\n\n');
-    return paragraphs.map(p => {
-        // Check for headers
-        if (p.startsWith('## ')) {
-            return `<h2>${p.substring(3)}</h2>`;
-        } else if (p.startsWith('### ')) {
-            return `<h3>${p.substring(4)}</h3>`;
-        } else if (p.trim()) {
-            // Convert markdown-like formatting
-            let formatted = p;
+    // Format content with proper paragraphs
+    const formattedContent = article.content
+        .split('\n\n')
+        .map(para => para.trim())
+        .filter(para => para.length > 0)
+        .map(para => {
+            // Check if it's a heading
+            if (para.startsWith('#')) {
+                const level = para.match(/^#+/)[0].length;
+                const text = para.replace(/^#+\s*/, '');
+                return `<h${Math.min(level + 1, 6)}>${text}</h${Math.min(level + 1, 6)}>`;
+            }
+            // Check if it's a blockquote
+            if (para.startsWith('>')) {
+                const text = para.replace(/^>\s*/, '');
+                return `<blockquote>${text}</blockquote>`;
+            }
+            // Regular paragraph
+            return `<p>${para}</p>`;
+        })
+        .join('');
 
-            // Bold
-            formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-
-            // Italic
-            formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
-
-            // Links
-            formatted = formatted.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank">$1</a>');
-
-            // Code
-            formatted = formatted.replace(/`(.+?)`/g, '<code>$1</code>');
-
-            return `<p>${formatted}</p>`;
-        }
-        return '';
-    }).join('');
+    articleContent.innerHTML = `
+        ${article.image ? `<img src="${article.image}" alt="${article.title}" class="article-detail-image" onerror="this.onerror=null; this.style.display='none';">` : ''}
+        <div style="padding: 2rem;">
+            <span class="featured-category">${article.category || 'General'}</span>
+            <h1>${article.title}</h1>
+            <div class="article-detail-meta">
+                <span>By ${article.author}</span>
+                <span>${formattedDate}</span>
+                <span>${article.views || 0} views</span>
+                ${article.readTime ? `<span>${article.readTime} min read</span>` : ''}
+            </div>
+            <div class="article-content">
+                ${formattedContent}
+            </div>
+            ${article.tags && article.tags.length > 0 ? `
+                <div class="article-tags" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-light);">
+                    ${article.tags.map(tag => `
+                        <span style="
+                            display: inline-block;
+                            padding: 0.375rem 0.875rem;
+                            background-color: var(--bg-secondary);
+                            border: 1px solid var(--border-color);
+                            border-radius: 20px;
+                            font-size: 0.875rem;
+                            color: var(--text-secondary);
+                            margin-right: 0.5rem;
+                            margin-bottom: 0.5rem;
+                        ">#${tag}</span>
+                    `).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `;
 }
 
-// Load comments from Firebase
-async function loadComments() {
+// Load comments
+async function loadComments(articleId) {
     try {
         const comments = await firebaseStorage.getComments(articleId);
-
-        if (comments.length === 0) {
-            commentsList.innerHTML = '<p class="no-comments">No comments yet. Be the first to share your thoughts!</p>';
-            return;
-        }
-
-        commentsList.innerHTML = comments.map(comment => {
-            const date = comment.date?.toDate ? comment.date.toDate() : new Date(comment.date);
-            const formattedDate = date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            return `
-                <div class="comment">
-                    <div class="comment-header">
-                        <span class="comment-author-name">${comment.author}</span>
-                        <span class="comment-date">${formattedDate}</span>
-                    </div>
-                    <p class="comment-text">${comment.text}</p>
-                </div>
-            `;
-        }).join('');
+        displayComments(comments);
     } catch (error) {
         console.error('Error loading comments:', error);
-        commentsList.innerHTML = '<p class="error-text">Error loading comments.</p>';
     }
+}
+
+// Display comments
+function displayComments(comments) {
+    if (!comments || comments.length === 0) {
+        commentsList.innerHTML = '<p class="text-center" style="color: var(--text-muted);">No comments yet. Be the first to share your thoughts!</p>';
+        return;
+    }
+
+    commentsList.innerHTML = comments.map(comment => {
+        const date = comment.date?.toDate ? comment.date.toDate() : new Date(comment.date);
+        const formattedDate = date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
+            hour: 'numeric',
+            minute: 'numeric'
+        });
+
+        return `
+            <div class="comment">
+                <div class="comment-header">
+                    <span class="comment-author-name">${comment.author}</span>
+                    <span class="comment-date">${formattedDate}</span>
+                </div>
+                <div class="comment-text">${comment.text}</div>
+            </div>
+        `;
+    }).join('');
 }
 
 // Submit comment
 submitComment?.addEventListener('click', async () => {
     const text = commentText.value.trim();
-    const author = commentAuthor.value.trim();
+    const author = commentAuthor.value.trim() || 'Anonymous';
+    const articleId = getArticleId();
 
     if (!text) {
-        alert('Please enter a comment');
+        alert('Please enter a comment.');
         return;
     }
 
-    submitComment.disabled = true;
-    submitComment.textContent = 'Posting...';
-
     try {
-        await firebaseStorage.addComment(articleId, text, author);
+        await firebaseStorage.addComment(articleId, {
+            text,
+            author,
+            date: firebase.firestore.Timestamp.now()
+        });
 
         // Clear form
         commentText.value = '';
         commentAuthor.value = '';
 
         // Reload comments
-        await loadComments();
-
-        // Show success message
-        showNotification('Comment posted successfully!', 'success');
+        loadComments(articleId);
     } catch (error) {
-        console.error('Error posting comment:', error);
-        showNotification('Error posting comment. Please try again.', 'error');
-    } finally {
-        submitComment.disabled = false;
-        submitComment.textContent = 'Post Comment';
+        console.error('Error adding comment:', error);
+        alert('Failed to add comment. Please try again.');
     }
 });
 
-// Load related articles from Firebase
-async function loadRelatedArticles() {
+// Load related articles
+async function loadRelatedArticles(category) {
+    if (!relatedArticles) return;
+
     try {
-        const allArticles = await firebaseStorage.getAllArticles();
-
-        // Filter out current article
-        const otherArticles = allArticles.filter(a => a.id !== articleId);
-
-        // Find related articles (same category or matching tags)
-        let related = otherArticles.filter(article =>
-            article.category === currentArticle.category ||
-            (article.tags && currentArticle.tags &&
-                article.tags.some(tag => currentArticle.tags.includes(tag)))
-        );
-
-        // If not enough related, add random articles
-        if (related.length < 3) {
-            const remaining = otherArticles.filter(a => !related.includes(a));
-            related = [...related, ...remaining.slice(0, 3 - related.length)];
-        }
-
-        // Limit to 3 articles
-        related = related.slice(0, 3);
+        const articles = await firebaseStorage.getAllArticles();
+        const related = articles
+            .filter(a => a.id !== getArticleId() && a.category === category)
+            .slice(0, 3);
 
         if (related.length === 0) {
-            relatedArticles.innerHTML = '<p>No related articles found.</p>';
-            return;
+            // If no articles in same category, show random articles
+            const randomArticles = articles
+                .filter(a => a.id !== getArticleId())
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3);
+            displayRelatedArticles(randomArticles);
+        } else {
+            displayRelatedArticles(related);
         }
+    } catch (error) {
+        console.error('Error loading related articles:', error);
+    }
+}
 
-        relatedArticles.innerHTML = related.map(article => {
-            const date = article.date?.toDate ? article.date.toDate() : new Date(article.date);
-            const formattedDate = date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric'
-            });
+// Display related articles
+function displayRelatedArticles(articles) {
+    if (!articles || articles.length === 0) {
+        relatedArticles.style.display = 'none';
+        return;
+    }
 
-            return `
-                <div class="article-card" onclick="window.location.href='article.html?id=${article.id}'">
-                    ${article.image ? `<img src="${article.image}" alt="${article.title}" class="article-image" onerror="this.onerror=null; this.style.display='none';">` :
-                    '<div class="article-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>'}
-                    <div class="article-body">
-                        <span class="article-category">${article.category || 'uncategorized'}</span>
-                        <h3 class="article-title">${article.title}</h3>
-                        <div class="article-meta">
-                            <span>${article.author} • ${formattedDate}</span>
+    relatedArticles.innerHTML = articles.map(article => {
+        const date = article.date?.toDate ? article.date.toDate() : new Date(article.date);
+        const formattedDate = date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+
+        return `
+            <div class="article-card" onclick="window.location.href='article-modern.html?id=${article.id}'">
+                ${article.image ?
+                    `<img src="${article.image}" alt="${article.title}" class="article-image" onerror="this.onerror=null; this.style.display='none';">` :
+                    '<div class="article-image" style="background: linear-gradient(135deg, #e5e7eb, #9ca3af);"></div>'}
+                <div class="article-body">
+                    <span class="article-category">${article.category || 'General'}</span>
+                    <h3 class="article-title">${article.title}</h3>
+                    <p class="article-summary">${article.summary}</p>
+                    <div class="article-meta">
+                        <div class="article-author">
+                            <span>${article.author}</span>
+                            <span>• ${formattedDate}</span>
+                        </div>
+                        <div class="article-stats">
+                            <span>👁 ${article.views || 0}</span>
                         </div>
                     </div>
                 </div>
-            `;
-        }).join('');
-    } catch (error) {
-        console.error('Error loading related articles:', error);
-        relatedArticles.innerHTML = '<p>Error loading related articles.</p>';
-    }
+            </div>
+        `;
+    }).join('');
 }
 
-// Show notification
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => notification.remove(), 3000);
-}
-
-// Add styles
-const style = document.createElement('style');
-style.textContent = `
-    .article-tags {
-        margin-top: 2rem;
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .tag {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        background-color: var(--bg-tertiary);
-        color: var(--primary-color);
-        border-radius: 20px;
-        font-size: 0.875rem;
-    }
-
-    .no-comments {
-        text-align: center;
-        color: var(--text-secondary);
-        padding: 2rem;
-        background-color: var(--bg-secondary);
-        border-radius: var(--radius);
-    }
-
-    .error-text {
-        text-align: center;
-        color: var(--danger-color);
-        padding: 1rem;
-    }
-
-    .notification {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        padding: 1rem 2rem;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow-lg);
-        animation: slideIn 0.3s ease;
-        z-index: 1000;
-    }
-
-    .notification-success {
-        background-color: var(--success-color);
-        color: white;
-    }
-
-    .notification-error {
-        background-color: var(--danger-color);
-        color: white;
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-`;
-document.head.appendChild(style);
-
-// Initialize
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     initDarkMode();
 
-    // Wait for Firebase to initialize
+    // Wait for Firebase auth to initialize
     setTimeout(() => {
         loadArticle();
+
+        // Check if user is admin
+        firebase.auth().onAuthStateChanged(user => {
+            const adminElements = document.querySelectorAll('.admin-only');
+            if (user && user.email === ADMIN_EMAIL) {
+                adminElements.forEach(el => el.style.display = '');
+            } else {
+                adminElements.forEach(el => el.style.display = 'none');
+            }
+        });
     }, 1000);
 });

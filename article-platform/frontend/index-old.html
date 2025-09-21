@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Hub - Modern Publishing Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Article Hub</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="submit.html" class="nav-link">Submit Article</a>
+                <a href="write.html" class="nav-link admin-only" style="display:none;">Write</a>
+                <a href="admin.html" class="nav-link admin-only" style="display:none;">Admin</a>
+                <button id="darkModeToggle" class="theme-toggle">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h2 class="hero-title">Discover Amazing Articles</h2>
+            <p class="hero-subtitle">Read, write, and share your thoughts with the world</p>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search articles..." class="search-input">
+                <button id="searchBtn" class="search-btn">Search</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <div class="filter-bar">
+            <select id="categoryFilter" class="filter-select">
+                <option value="all">All Categories</option>
+                <option value="technology">Technology</option>
+                <option value="science">Science</option>
+                <option value="business">Business</option>
+                <option value="health">Health</option>
+                <option value="lifestyle">Lifestyle</option>
+            </select>
+            <select id="sortFilter" class="filter-select">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="popular">Most Popular</option>
+            </select>
+        </div>
+
+        <div id="articlesGrid" class="articles-grid">
+            <!-- Articles will be dynamically loaded here -->
+        </div>
+
+        <div id="loadingSpinner" class="loading-spinner hidden">
+            <div class="spinner"></div>
+        </div>
+
+        <button id="loadMoreBtn" class="load-more-btn">Load More Articles</button>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Article Hub. All rights reserved.</p>
+            <p>Made with ❤️ for content creators</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script src="app-firebase.js"></script>
+</body>
+</html>

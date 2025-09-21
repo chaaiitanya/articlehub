@@ -3,19 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Article - Article Hub</title>
+    <title>Article - ArticleHub</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1>Article Hub</h1>
+                <h1>ArticleHub</h1>
             </div>
             <div class="nav-menu">
                 <a href="index.html" class="nav-link">Home</a>
-                <a href="submit.html" class="nav-link">Submit Article</a>
+                <a href="#" class="nav-link">Technology</a>
+                <a href="#" class="nav-link">Science</a>
+                <a href="#" class="nav-link">Business</a>
+                <a href="#" class="nav-link">Health</a>
+                <a href="submit.html" class="nav-link">Submit</a>
                 <a href="write.html" class="nav-link admin-only" style="display:none;">Write</a>
                 <a href="admin.html" class="nav-link admin-only" style="display:none;">Admin</a>
                 <button id="darkModeToggle" class="theme-toggle">🌙</button>
@@ -23,7 +28,7 @@
         </div>
     </nav>
 
-    <main class="container article-container">
+    <main class="container-narrow">
         <article id="articleContent" class="article-detail">
             <!-- Article content will be loaded here -->
         </article>
@@ -43,8 +48,10 @@
         </section>
 
         <section class="related-articles">
-            <h3>Related Articles</h3>
-            <div id="relatedArticles" class="related-grid">
+            <div class="section-header">
+                <h2 class="section-title">Related Articles</h2>
+            </div>
+            <div id="relatedArticles" class="articles-grid">
                 <!-- Related articles will be loaded here -->
             </div>
         </section>
@@ -52,8 +59,47 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Article Hub. All rights reserved.</p>
-            <p>Made with ❤️ for content creators</p>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Our Team</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Categories</h4>
+                    <ul>
+                        <li><a href="#">Technology</a></li>
+                        <li><a href="#">Science</a></li>
+                        <li><a href="#">Business</a></li>
+                        <li><a href="#">Health</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Write for Us</a></li>
+                        <li><a href="#">Guidelines</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Use</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="#">RSS Feed</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 ArticleHub. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 

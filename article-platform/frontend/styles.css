@@ -838,6 +838,11 @@ body {
     color: white;
 }
 
+.status-pending {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
 .action-btns {
     display: flex;
     gap: 0.5rem;

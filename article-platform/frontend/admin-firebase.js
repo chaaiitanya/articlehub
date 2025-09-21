@@ -11,6 +11,7 @@ const totalArticles = document.getElementById('totalArticles');
 const totalComments = document.getElementById('totalComments');
 const totalViews = document.getElementById('totalViews');
 const draftCount = document.getElementById('draftCount');
+const pendingCount = document.getElementById('pendingCount');
 const articlesTableBody = document.getElementById('articlesTableBody');
 const recentComments = document.getElementById('recentComments');
 const adminSearch = document.getElementById('adminSearch');
@@ -59,10 +60,15 @@ async function loadDashboard() {
             .where('status', '==', 'draft')
             .get();
 
+        const pendingQuery = await db.collection('articles')
+            .where('status', '==', 'pending')
+            .get();
+
         const published = publishedQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const drafts = draftQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const pending = pendingQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        allArticles = [...published, ...drafts];
+        allArticles = [...published, ...drafts, ...pending];
 
         // Get all comments
         const commentsQuery = await db.collection('comments')
@@ -80,6 +86,7 @@ async function loadDashboard() {
         totalComments.textContent = allComments.length;
         totalViews.textContent = totalViewsCount;
         draftCount.textContent = drafts.length;
+        if (pendingCount) pendingCount.textContent = pending.length;
 
         // Load articles table
         loadArticlesTable();
@@ -137,7 +144,8 @@ function loadArticlesTable() {
         });
 
         const status = article.status || 'published';
-        const statusClass = status === 'published' ? 'status-published' : 'status-draft';
+        const statusClass = status === 'published' ? 'status-published' :
+                           status === 'draft' ? 'status-draft' : 'status-pending';
 
         return `
             <tr>
@@ -155,6 +163,10 @@ function loadArticlesTable() {
                         }
                         ${status === 'draft' ?
                             `<button class="action-btn" onclick="publishDraft('${article.id}')" title="Publish">📢</button>` : ''
+                        }
+                        ${status === 'pending' ?
+                            `<button class="action-btn" onclick="approveArticle('${article.id}')" title="Approve" style="color: green;">✅</button>
+                             <button class="action-btn" onclick="rejectArticle('${article.id}')" title="Reject" style="color: red;">❌</button>` : ''
                         }
                         <button class="action-btn" onclick="deleteArticle('${article.id}')" title="Delete">🗑️</button>
                     </div>
@@ -217,6 +229,45 @@ window.publishDraft = async function(id) {
         } catch (error) {
             console.error('Error publishing draft:', error);
             showNotification('Error publishing draft', 'error');
+        }
+    }
+};
+
+window.approveArticle = async function(id) {
+    const article = allArticles.find(a => a.id === id);
+    if (article && confirm(`Approve "${article.title}"?`)) {
+        try {
+            await db.collection('articles').doc(id).update({
+                status: 'published',
+                approvedAt: firebase.firestore.Timestamp.now(),
+                approvedBy: currentUser.email
+            });
+            showNotification('Article approved and published!');
+            loadDashboard();
+        } catch (error) {
+            console.error('Error approving article:', error);
+            showNotification('Error approving article', 'error');
+        }
+    }
+};
+
+window.rejectArticle = async function(id) {
+    const article = allArticles.find(a => a.id === id);
+    const reason = prompt(`Reject "${article.title}"?\nOptional: Enter rejection reason:`);
+
+    if (reason !== null) {
+        try {
+            await db.collection('articles').doc(id).update({
+                status: 'rejected',
+                rejectedAt: firebase.firestore.Timestamp.now(),
+                rejectedBy: currentUser.email,
+                rejectionReason: reason || 'No reason provided'
+            });
+            showNotification('Article rejected');
+            loadDashboard();
+        } catch (error) {
+            console.error('Error rejecting article:', error);
+            showNotification('Error rejecting article', 'error');
         }
     }
 };

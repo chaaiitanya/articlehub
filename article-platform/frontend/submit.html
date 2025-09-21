@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Article - Article Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Article Hub</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="submit.html" class="nav-link active">Submit Article</a>
+                <a href="write.html" class="nav-link admin-only" style="display:none;">Write</a>
+                <a href="admin.html" class="nav-link admin-only" style="display:none;">Admin</a>
+                <button id="darkModeToggle" class="theme-toggle">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container write-container">
+        <div class="write-header">
+            <h2>Submit Your Article</h2>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Your article will be reviewed before publication</p>
+        </div>
+
+        <div id="successMessage" class="success-banner" style="display: none;">
+            <h3>Thank you for your submission!</h3>
+            <p>Your article has been sent for review. We'll publish it once approved.</p>
+            <a href="submit.html" class="btn-primary" style="display: inline-block; margin-top: 1rem;">Submit Another Article</a>
+        </div>
+
+        <form id="articleForm" class="article-form">
+            <div class="form-group">
+                <input type="text" id="articleTitle" placeholder="Article Title" class="form-input title-input" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <input type="text" id="articleAuthor" placeholder="Your Name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="authorEmail" placeholder="Your Email (optional)" class="form-input">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <select id="articleCategory" class="form-select" required>
+                        <option value="">Select Category</option>
+                        <option value="technology">Technology</option>
+                        <option value="science">Science</option>
+                        <option value="business">Business</option>
+                        <option value="health">Health</option>
+                        <option value="lifestyle">Lifestyle</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="articleTags" placeholder="Tags (comma separated)" class="form-input">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="url" id="articleImage" placeholder="Cover Image URL (optional)" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <textarea id="articleSummary" placeholder="Brief summary (150 characters)" class="form-textarea summary-textarea" maxlength="150" required></textarea>
+                <span class="char-count">0/150</span>
+            </div>
+
+            <div class="form-group">
+                <div class="editor-toolbar">
+                    <button type="button" class="toolbar-btn" data-format="bold">B</button>
+                    <button type="button" class="toolbar-btn" data-format="italic">I</button>
+                    <button type="button" class="toolbar-btn" data-format="h2">H2</button>
+                    <button type="button" class="toolbar-btn" data-format="h3">H3</button>
+                    <button type="button" class="toolbar-btn" data-format="ul">• List</button>
+                    <button type="button" class="toolbar-btn" data-format="quote">Quote</button>
+                </div>
+                <textarea id="articleContent" placeholder="Write your article content here..." class="form-textarea content-textarea" required></textarea>
+            </div>
+
+            <div class="form-info">
+                <p>📝 <strong>Submission Guidelines:</strong></p>
+                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                    <li>Original content only - no plagiarism</li>
+                    <li>Minimum 300 words</li>
+                    <li>Respectful and appropriate content</li>
+                    <li>Articles are reviewed within 24-48 hours</li>
+                </ul>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" id="previewBtn" class="btn-secondary">Preview</button>
+                <button type="submit" id="submitBtn" class="btn-primary">Submit for Review</button>
+            </div>
+        </form>
+
+        <div id="previewModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Article Preview</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div id="previewContent" class="modal-body">
+                    <!-- Preview content will be shown here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Article Hub. All rights reserved.</p>
+            <p>Made with ❤️ for content creators</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script src="submit.js"></script>
+</body>
+</html>

@@ -212,13 +212,19 @@ class FirebaseArticleStorage {
         try {
             const snapshot = await db.collection('comments')
                 .where('articleId', '==', articleId)
-                .orderBy('date', 'desc')
                 .get();
 
-            return snapshot.docs.map(doc => ({
+            const comments = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
+
+            // Sort by date in JavaScript to avoid index requirement
+            return comments.sort((a, b) => {
+                const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+                const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                return dateB - dateA; // Newest first
+            });
         } catch (error) {
             console.error('Error getting comments:', error);
             return [];
@@ -250,14 +256,20 @@ class FirebaseArticleStorage {
             }
 
             const snapshot = await db.collection('comments')
-                .orderBy('date', 'desc')
                 .limit(50)
                 .get();
 
-            return snapshot.docs.map(doc => ({
+            const comments = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
+
+            // Sort by date in JavaScript
+            return comments.sort((a, b) => {
+                const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+                const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                return dateB - dateA;
+            });
         } catch (error) {
             console.error('Error getting all comments:', error);
             return [];
@@ -272,13 +284,19 @@ class FirebaseArticleStorage {
 
             const snapshot = await db.collection('articles')
                 .where('status', '==', 'draft')
-                .orderBy('date', 'desc')
                 .get();
 
-            return snapshot.docs.map(doc => ({
+            const drafts = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
+
+            // Sort by date in JavaScript
+            return drafts.sort((a, b) => {
+                const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+                const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                return dateB - dateA;
+            });
         } catch (error) {
             console.error('Error getting drafts:', error);
             return [];

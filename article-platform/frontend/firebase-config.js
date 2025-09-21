@@ -132,13 +132,19 @@ class FirebaseArticleStorage {
         try {
             const snapshot = await db.collection('articles')
                 .where('status', '==', 'published')
-                .orderBy('date', 'desc')
                 .get();
 
-            return snapshot.docs.map(doc => ({
+            const articles = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
+
+            // Sort by date in JavaScript to avoid index requirement
+            return articles.sort((a, b) => {
+                const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+                const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                return dateB - dateA; // Newest first
+            });
         } catch (error) {
             console.error('Error getting articles:', error);
             return [];

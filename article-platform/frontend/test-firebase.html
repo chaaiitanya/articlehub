@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Firebase Auth</title>
+</head>
+<body>
+    <h1>Firebase Auth Test</h1>
+    <div id="status">Loading...</div>
+    <br>
+    <button onclick="testSignUp()">Test Sign Up</button>
+    <button onclick="testSignIn()">Test Sign In</button>
+    <div id="result"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkY-zqguZ2tqSHX17FQJGe53r5O2Ah7s8",
+            authDomain: "hariwrites-9b180.firebaseapp.com",
+            projectId: "hariwrites-9b180",
+            storageBucket: "hariwrites-9b180.firebasestorage.app",
+            messagingSenderId: "736661564721",
+            appId: "1:736661564721:web:3e3dc3ac8f173c45a6d410"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Check auth state
+        auth.onAuthStateChanged((user) => {
+            document.getElementById('status').innerText = user ?
+                `Logged in as: ${user.email}` :
+                'Not logged in';
+        });
+
+        async function testSignUp() {
+            try {
+                const email = prompt('Enter email:');
+                const password = prompt('Enter password:');
+                const result = await auth.createUserWithEmailAndPassword(email, password);
+                document.getElementById('result').innerHTML =
+                    `<p style="color:green">Success! User created: ${result.user.email}</p>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML =
+                    `<p style="color:red">Error: ${error.message}<br>Code: ${error.code}</p>`;
+                console.error('Full error:', error);
+            }
+        }
+
+        async function testSignIn() {
+            try {
+                const email = prompt('Enter email:');
+                const password = prompt('Enter password:');
+                const result = await auth.signInWithEmailAndPassword(email, password);
+                document.getElementById('result').innerHTML =
+                    `<p style="color:green">Success! Logged in as: ${result.user.email}</p>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML =
+                    `<p style="color:red">Error: ${error.message}<br>Code: ${error.code}</p>`;
+                console.error('Full error:', error);
+            }
+        }
+
+        // Test Firebase connection
+        console.log('Firebase app:', firebase.app());
+        console.log('Auth:', auth);
+    </script>
+</body>
+</html>
